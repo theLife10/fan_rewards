@@ -22,6 +22,22 @@ pub mod fan_rewards {
         Ok(())
     }
 
+    pub fn redeem_rewards(ctx: Context<RedeemRewards>, amount: u64) -> Result<()> {
+        let cpi_accounts = token::Burn {
+            mint: ctx.accounts.mint.to_account_info(),
+            from: ctx.accounts.user_account.to_account_info(),
+            authority: ctx.accounts.user.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+
+        // Perform the burn operation
+        token::burn(cpi_ctx, amount)?;
+
+        Ok(())
+    }
+
+
     // Function to verify NFT ownership for gated access
     pub fn verify_nft_access(
         ctx: Context<VerifyAccess>,
@@ -45,7 +61,18 @@ pub struct MintTokens<'info> {
     pub receiver: Account<'info, TokenAccount>,
     #[account(signer)]
     pub mint_authority: AccountInfo<'info>,
-    #[account(address = token::ID)] // Ensures the correct token program is used
+    #[account(address = token::ID)]
+    pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
+pub struct RedeemRewards<'info> {
+    #[account(mut)]
+    pub mint: Account<'info, Mint>,
+    #[account(mut)]
+    pub user_account: Account<'info, TokenAccount>,
+    #[account(signer)]
+    pub user: AccountInfo<'info>,
     pub token_program: Program<'info, Token>,
 }
 
@@ -55,7 +82,7 @@ pub struct VerifyAccess<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
     #[account(mut)]
-    pub nft_account: Account<'info, TokenAccount>, // Enforces token account validation
+    pub nft_account: Account<'info, TokenAccount>,
 }
 
 // Custom error definitions
