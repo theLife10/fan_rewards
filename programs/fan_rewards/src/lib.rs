@@ -37,16 +37,42 @@ pub mod fan_rewards {
         Ok(())
     }
 
+    pub fn get_loyalty_tier(ctx: Context<LoyaltyTier>) -> Result<String> {
+        let balance = ctx.accounts.user_account.amount; // Token balance
+        let tier = if balance <= 100 {
+            "Bronze".to_string()
+        } else if balance <= 500 {
+            "Silver".to_string()
+        } else {
+            "Gold".to_string()
+        };
+        msg!("User Loyalty Tier: {}", tier);
+        Ok(tier)
+    }
 
-    // Function to verify NFT ownership for gated access
-    pub fn verify_nft_access(
-        ctx: Context<VerifyAccess>,
+    pub fn mint_achievement_nft(ctx: Context<MintAchievement>, metadata_uri: String) -> Result<()> {
+        let cpi_accounts = token::MintTo {
+            mint: ctx.accounts.nft_mint.to_account_info(),
+            to: ctx.accounts.receiver.to_account_info(),
+            authority: ctx.accounts.mint_authority.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
-    ) -> Result<()> {
-        let wallet = &ctx.accounts.user.key;
+        token::mint_to(cpi_ctx, 1)?; // Mint 1 NFT
+        msg!("Minted Achievement NFT with metadata URI: {}", metadata_uri);
+        Ok(())
+    }
+
+
+
+
+    pub fn redeem_perk(ctx: Context<RedeemPerk>, nft_id: String) -> Result<()> {
+        let user_wallet = &ctx.accounts.user.key;
         let nft_owner = ctx.accounts.nft_account.owner;
-        require_keys_eq!(**wallet, nft_owner, CustomError::Unauthorized);
 
+        require_keys_eq!(**user_wallet, nft_owner, CustomError::Unauthorized);
+        msg!("Perk redeemed with NFT ID: {}", nft_id);
         Ok(())
     }
 }
@@ -74,6 +100,31 @@ pub struct RedeemRewards<'info> {
     #[account(signer)]
     pub user: AccountInfo<'info>,
     pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
+pub struct LoyaltyTier<'info> {
+    pub user_account: Account<'info, TokenAccount>,
+}
+
+#[derive(Accounts)]
+pub struct MintAchievement<'info> {
+    #[account(mut)]
+    pub nft_mint: Account<'info, Mint>,
+    #[account(mut)]
+    pub receiver: Account<'info, TokenAccount>,
+    #[account(signer)]
+    pub mint_authority: AccountInfo<'info>,
+    #[account(address = token::ID)]
+    pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
+pub struct RedeemPerk<'info> {
+    #[account(mut)]
+    pub user: Signer<'info>,
+    #[account(mut)]
+    pub nft_account: Account<'info, TokenAccount>, // Validate user's NFT account
 }
 
 // Contexts for NFT access verification
