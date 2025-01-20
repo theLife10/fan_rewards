@@ -85,6 +85,7 @@ pub struct MintTokens<'info> {
     pub mint: Account<'info, Mint>,
     #[account(mut)]
     pub receiver: Account<'info, TokenAccount>,
+    /// CHECK: This is safe because `mint_authority` is verified by the program logic
     #[account(signer)]
     pub mint_authority: AccountInfo<'info>,
     #[account(address = token::ID)]
@@ -97,6 +98,7 @@ pub struct RedeemRewards<'info> {
     pub mint: Account<'info, Mint>,
     #[account(mut)]
     pub user_account: Account<'info, TokenAccount>,
+    /// CHECK: This is safe because `user` is verified by the program logic
     #[account(signer)]
     pub user: AccountInfo<'info>,
     pub token_program: Program<'info, Token>,
@@ -113,6 +115,7 @@ pub struct MintAchievement<'info> {
     pub nft_mint: Account<'info, Mint>,
     #[account(mut)]
     pub receiver: Account<'info, TokenAccount>,
+    /// CHECK: This is safe because `mint_authority` is verified by the program logic
     #[account(signer)]
     pub mint_authority: AccountInfo<'info>,
     #[account(address = token::ID)]
