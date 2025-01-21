@@ -1,11 +1,18 @@
 {
-            "compilerOptions": {
-              "types": ["mocha", "chai"],
-              "typeRoots": ["./node_modules/@types"],
-              "lib": ["es2015"],
-              "module": "commonjs",
-              "target": "es6",
-              "esModuleInterop": true
-            }
-          }
-          
+  "compilerOptions": {
+    "target": "es6",                   // Keep target as ES6 for modern syntax
+    "module": "commonjs",              // Required for Node.js compatibility
+    "lib": ["es2015"],                 // Provides ES6 features
+    "typeRoots": ["./node_modules/@types"], // Includes type definitions
+    "types": ["mocha", "chai"],        // Adds support for Mocha and Chai
+    "esModuleInterop": true,           // Allows default imports from CommonJS modules
+    "outDir": "./dist",                // Optional: Specify output directory for compiled files
+    "strict": true,                    // Enable all TypeScript strict checks
+    "skipLibCheck": true               // Speeds up compilation by skipping type checks for library files
+  },
+  "include": [
+    "tests/**/*.ts",                   // Include test files
+    "src/**/*.ts"                      // Include source files
+  ],
+  "exclude": ["node_modules", "dist"]  // Exclude unnecessary folders
+}

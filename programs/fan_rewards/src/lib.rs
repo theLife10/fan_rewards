@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("4XvhLJYTj4VxL46bAbrAvjCkNiC7brcaL62dfnTWb2dv");
 
 #[program]
 pub mod fan_rewards {
